@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/marina-shinkevich/my-ci-project#readme",
   "dependencies": {
-    "chromedriver": "^149.0.0",
     "selenium-webdriver": "^4.44.0"
   }
 }

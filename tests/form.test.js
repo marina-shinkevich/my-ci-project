@@ -7,20 +7,16 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+
+
 function createDriver() {
     const options = new chrome.Options();
 
-    const isCI = process.env.CI === "true";
-
-    if (isCI) {
-        // GitHub Actions / Linux CI
+    if (process.env.CI) {
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--window-size=1920,1080");
-    } else {
-        // локально
-        options.addArguments("--start-maximized");
     }
 
     return new Builder()
@@ -28,6 +24,8 @@ function createDriver() {
         .setChromeOptions(options)
         .build();
 }
+
+module.exports = createDriver;
 
 // путь к index.html
 const filePath = "file://" + path.resolve("index.html");
