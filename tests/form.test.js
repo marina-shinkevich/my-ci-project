@@ -7,27 +7,31 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Создание драйвера
+
+
 function createDriver() {
+    const options = new chrome.Options();
 
-    let options = new chrome.Options();
+    const isCI = process.env.CI === "true";
 
-    // Headless режим для GitHub Actions
-    options.addArguments("--headless");
+    if (isCI) {
+        // GitHub Actions / Linux CI
+        options.setChromeBinaryPath("/usr/bin/google-chrome");
 
-    // Параметры для Linux/GitHub Actions
-    options.addArguments("--no-sandbox");
-    options.addArguments("--disable-dev-shm-usage");
-
-    // Размер окна браузера
-    options.addArguments("--window-size=1920,1080");
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
+    } else {
+        // Локальный запуск (Windows/macOS/Linux)
+        options.addArguments("--start-maximized");
+    }
 
     return new Builder()
         .forBrowser("chrome")
         .setChromeOptions(options)
         .build();
 }
-
 // Автоматическое получение пути к index.html
 const filePath = "file://" + path.resolve("index.html");
 
