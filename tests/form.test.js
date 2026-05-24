@@ -9,6 +9,7 @@ async function sleep(ms) {
 
 
 
+
 function createDriver() {
     const options = new chrome.Options();
 
@@ -19,12 +20,17 @@ function createDriver() {
         options.addArguments("--window-size=1920,1080");
     }
 
+    // ❗ ВАЖНО: ЯВНЫЙ chromedriver путь
+    const service = new chrome.ServiceBuilder("/usr/bin/chromedriver");
+
     return new Builder()
         .forBrowser("chrome")
         .setChromeOptions(options)
+        .setChromeService(service)
         .build();
 }
 
+module.exports = createDriver;
 module.exports = createDriver;
 
 // путь к index.html
