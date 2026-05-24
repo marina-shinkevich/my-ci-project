@@ -1,110 +1,142 @@
 const { Builder, By } = require("selenium-webdriver");
+const chrome = require("selenium-webdriver/chrome");
+const path = require("path");
 
-// Функция для создания паузы
+// Функция паузы
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Настройка Chrome для GitHub Actions
+function createDriver() {
+
+    let options = new chrome.Options();
+
+    // Headless режим для CI/CD
+    options.addArguments("--headless");
+
+    // Обязательные параметры для Linux/GitHub Actions
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+
+    // Размер окна браузера
+    options.addArguments("--window-size=1920,1080");
+
+    return new Builder()
+        .forBrowser("chrome")
+        .setChromeOptions(options)
+        .build();
+}
+
+// Получаем путь к index.html
+const filePath = "file://" + path.resolve("index.html");
+
 async function testEmptyFields() {
-    
-    let driver = await new Builder().forBrowser("chrome").build();
-    
+
+    let driver = await createDriver();
+
     try {
-        await driver.get("file:///D:/3курс6сем/ТПО/lab11/my-ci-project/index.html");
-        
-        // Пауза перед кликом (страница открыта 2 секунды)
-        await sleep(2000);
-        
-        // Медленное нажатие на кнопку
-        let button = await driver.findElement(By.css("button"));
-        await driver.executeScript("arguments[0].click();", button);
-        
-        // Пауза после клика
+
+        await driver.get(filePath);
+
+        // Пауза после открытия страницы
         await sleep(1000);
-        
-        let text = await driver.findElement(By.id("message")).getText();
-        
+
+        // Поиск кнопки
+        let button = await driver.findElement(By.css("button"));
+
+        // Клик по кнопке
+        await button.click();
+
+        // Пауза после клика
+        await sleep(500);
+
+        // Получаем текст сообщения
+        let text = await driver
+            .findElement(By.id("message"))
+            .getText();
+
+        // Проверка результата
         if (text !== "Заполните все поля") {
-            throw new Error("Тест не пройден");
+
+            throw new Error(
+                `Тест 1 не пройден. Получено: "${text}"`
+            );
+
         }
-        
+
         console.log("Тест 1 пройден");
-        
-        // Дополнительная пауза перед закрытием
-        await sleep(1500);
-        
+
     } finally {
+
         await driver.quit();
+
     }
 }
 
 async function testCorrectInput() {
-    let driver = await new Builder().forBrowser("chrome").build();
-    
+
+    let driver = await createDriver();
+
     try {
-        await driver.get("file:///D:/3курс6сем/ТПО/lab11/my-ci-project/index.html");
-        
-        // Пауза перед вводом данных
+
+        await driver.get(filePath);
+
         await sleep(1000);
-        
-        // Медленный ввод имени (каждая буква с задержкой)
+
+        // Ввод имени
         let nameField = await driver.findElement(By.id("name"));
-        await nameField.click();
-        const name = "Марина";
-        for (let char of name) {
-            await nameField.sendKeys(char);
-            await sleep(300); // Задержка между символами
-        }
-        
-        // Пауза между полями
-        await sleep(800);
-        
-        // Медленный ввод email
+
+        await nameField.sendKeys("Марина");
+
+        // Ввод email
         let emailField = await driver.findElement(By.id("email"));
-        await emailField.click();
-        const email = "test@test.com";
-        for (let char of email) {
-            await emailField.sendKeys(char);
-            await sleep(150); // Задержка между символами
-        }
-        
-        // Пауза перед отправкой
-        await sleep(1000);
-        
-        // Медленное нажатие на кнопку
+
+        await emailField.sendKeys("test@test.com");
+
+        await sleep(500);
+
+        // Нажатие кнопки
         let button = await driver.findElement(By.css("button"));
-        await driver.executeScript("arguments[0].click();", button);
-        
-        // Пауза после отправки
-        await sleep(1000);
-        
-        let text = await driver.findElement(By.id("message")).getText();
-        
+
+        await button.click();
+
+        await sleep(500);
+
+        // Проверка сообщения
+        let text = await driver
+            .findElement(By.id("message"))
+            .getText();
+
         if (text !== "Форма отправлена") {
-            throw new Error("Тест не пройден");
+
+            throw new Error(
+                `Тест 2 не пройден. Получено: "${text}"`
+            );
+
         }
-        
+
         console.log("Тест 2 пройден");
-        
-        // Финальная пауза перед закрытием
-        await sleep(2000);
-        
+
     } finally {
+
         await driver.quit();
+
     }
 }
 
 async function runTests() {
+
     console.log("Начинаем выполнение тестов...");
-    
+
     await testEmptyFields();
-    
-    console.log("Ожидание между тестами...");
-    await sleep(3000); // Пауза между тестами
-    
+
+    await sleep(1000);
+
     await testCorrectInput();
-    
-    console.log("Все тесты завершены!");
+
+    console.log("Все тесты успешно завершены!");
+
 }
 
 runTests();
