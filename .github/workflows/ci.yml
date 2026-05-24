@@ -8,13 +8,10 @@ on:
       - 'fix/**'
 
 jobs:
-
   test:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -26,16 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Google Chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Install ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
-
-      - name: Check versions
-        run: |
-          google-chrome --version
-          chromedriver --version
+      - name: Check Chrome
+        run: google-chrome --version || true
 
       - name: Run tests
         run: node tests/form.test.js
