@@ -18,7 +18,7 @@
     "url": "https://github.com/marina-shinkevich/my-ci-project/issues"
   },
   "homepage": "https://github.com/marina-shinkevich/my-ci-project#readme",
-  "dependencies": {
-    "selenium-webdriver": "^4.44.0"
-  }
+"dependencies": {
+  "selenium-webdriver": "4.16.0"
+}
 }

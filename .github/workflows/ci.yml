@@ -17,6 +17,16 @@ jobs:
 
       - run: npm install
 
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install ChromeDriver (IMPORTANT)
+        run: |
+          sudo apt-get install -y chromium-chromedriver
+          chromedriver --version
+
       - run: google-chrome --version
 
       - run: node tests/form.test.js
