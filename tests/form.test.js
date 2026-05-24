@@ -1,36 +1,38 @@
 const { Builder, By } = require("selenium-webdriver");
+
 const chrome = require("selenium-webdriver/chrome");
+
 const path = require("path");
 
-// Функция паузы
+// Путь к chromedriver в Linux
+const service = new chrome.ServiceBuilder("/usr/bin/chromedriver");
+
+// Пауза
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Настройка Chrome для GitHub Actions
+// Создание драйвера
 function createDriver() {
 
     let options = new chrome.Options();
 
-    // Headless режим для CI/CD
     options.addArguments("--headless");
-
-    // Обязательные параметры для Linux/GitHub Actions
     options.addArguments("--no-sandbox");
     options.addArguments("--disable-dev-shm-usage");
-
-    // Размер окна браузера
     options.addArguments("--window-size=1920,1080");
 
     return new Builder()
         .forBrowser("chrome")
         .setChromeOptions(options)
+        .setChromeService(service)
         .build();
 }
 
-// Получаем путь к index.html
+// Путь к HTML
 const filePath = "file://" + path.resolve("index.html");
 
+// Тест пустых полей
 async function testEmptyFields() {
 
     let driver = await createDriver();
@@ -39,28 +41,22 @@ async function testEmptyFields() {
 
         await driver.get(filePath);
 
-        // Пауза после открытия страницы
         await sleep(1000);
 
-        // Поиск кнопки
         let button = await driver.findElement(By.css("button"));
 
-        // Клик по кнопке
         await button.click();
 
-        // Пауза после клика
         await sleep(500);
 
-        // Получаем текст сообщения
         let text = await driver
             .findElement(By.id("message"))
             .getText();
 
-        // Проверка результата
         if (text !== "Заполните все поля") {
 
             throw new Error(
-                `Тест 1 не пройден. Получено: "${text}"`
+                `Тест 1 не пройден: ${text}`
             );
 
         }
@@ -74,6 +70,7 @@ async function testEmptyFields() {
     }
 }
 
+// Тест корректного ввода
 async function testCorrectInput() {
 
     let driver = await createDriver();
@@ -84,26 +81,22 @@ async function testCorrectInput() {
 
         await sleep(1000);
 
-        // Ввод имени
-        let nameField = await driver.findElement(By.id("name"));
+        await driver
+            .findElement(By.id("name"))
+            .sendKeys("Марина");
 
-        await nameField.sendKeys("Марина");
-
-        // Ввод email
-        let emailField = await driver.findElement(By.id("email"));
-
-        await emailField.sendKeys("test@test.com");
+        await driver
+            .findElement(By.id("email"))
+            .sendKeys("test@test.com");
 
         await sleep(500);
 
-        // Нажатие кнопки
         let button = await driver.findElement(By.css("button"));
 
         await button.click();
 
         await sleep(500);
 
-        // Проверка сообщения
         let text = await driver
             .findElement(By.id("message"))
             .getText();
@@ -111,7 +104,7 @@ async function testCorrectInput() {
         if (text !== "Форма отправлена") {
 
             throw new Error(
-                `Тест 2 не пройден. Получено: "${text}"`
+                `Тест 2 не пройден: ${text}`
             );
 
         }
@@ -125,6 +118,7 @@ async function testCorrectInput() {
     }
 }
 
+// Запуск тестов
 async function runTests() {
 
     console.log("Начинаем выполнение тестов...");
