@@ -12,38 +12,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Node.js
+    
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Install dependencies
+   
       - name: Install dependencies
         run: npm install
 
-      # 4. Install Google Chrome
+   
       - name: Install Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      # 5. Install ChromeDriver (ВАЖНО для твоего setupChromeService)
+
       - name: Install ChromeDriver
         run: |
           sudo apt-get install -y chromium-chromedriver
 
-      # 6. Verify versions
+
       - name: Check versions
         run: |
           google-chrome --version
           chromedriver --version
 
-      # 7. Run tests
+   
       - name: Run tests
         run: node tests/form.test.js
         env:
