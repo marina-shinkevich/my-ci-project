@@ -1,42 +1,14 @@
-const { Builder, By } = require("selenium-webdriver");
-const chrome = require("selenium-webdriver/chrome");
+const { By } = require("selenium-webdriver");
 const path = require("path");
+const createDriver = require("./driver");
 
-// Пауза (оставил, но лучше минимизировать)
 async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(r => setTimeout(r, ms));
 }
 
-
-
-
-function createDriver() {
-    const options = new chrome.Options();
-
-    if (process.env.CI) {
-        options.addArguments("--headless=new");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--window-size=1920,1080");
-    }
-
-    // ❗ ВАЖНО: ЯВНЫЙ chromedriver путь
-    const service = new chrome.ServiceBuilder("/usr/bin/chromedriver");
-
-    return new Builder()
-        .forBrowser("chrome")
-        .setChromeOptions(options)
-        .setChromeService(service)
-        .build();
-}
-
-module.exports = createDriver;
-module.exports = createDriver;
-
-// путь к index.html
 const filePath = "file://" + path.resolve("index.html");
 
-// -------------------- ТЕСТ 1 --------------------
+// ---------------- TEST 1 ----------------
 async function testEmptyFields() {
     const driver = await createDriver();
 
@@ -44,15 +16,13 @@ async function testEmptyFields() {
         await driver.get(filePath);
         await sleep(800);
 
-        const button = await driver.findElement(By.css("button"));
-        await button.click();
-
+        await driver.findElement(By.css("button")).click();
         await sleep(500);
 
         const text = await driver.findElement(By.id("message")).getText();
 
         if (text !== "Заполните все поля") {
-            throw new Error(`Тест 1 не пройден. Получено: ${text}`);
+            throw new Error(`Тест 1 не пройден: ${text}`);
         }
 
         console.log("Тест 1 пройден");
@@ -61,7 +31,7 @@ async function testEmptyFields() {
     }
 }
 
-// -------------------- ТЕСТ 2 --------------------
+// ---------------- TEST 2 ----------------
 async function testCorrectInput() {
     const driver = await createDriver();
 
@@ -72,17 +42,13 @@ async function testCorrectInput() {
         await driver.findElement(By.id("name")).sendKeys("Марина");
         await driver.findElement(By.id("email")).sendKeys("test@test.com");
 
-        await sleep(300);
-
-        const button = await driver.findElement(By.css("button"));
-        await button.click();
-
+        await driver.findElement(By.css("button")).click();
         await sleep(500);
 
         const text = await driver.findElement(By.id("message")).getText();
 
         if (text !== "Форма отправлена") {
-            throw new Error(`Тест 2 не пройден. Получено: ${text}`);
+            throw new Error(`Тест 2 не пройден: ${text}`);
         }
 
         console.log("Тест 2 пройден");
@@ -91,7 +57,7 @@ async function testCorrectInput() {
     }
 }
 
-// -------------------- RUN --------------------
+// ---------------- RUN ----------------
 async function runTests() {
     console.log("Начинаем выполнение тестов...");
 
