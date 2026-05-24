@@ -1,0 +1,33 @@
+name: CI Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'fix/**'
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Клонирование проекта
+        uses: actions/checkout@v4
+
+      - name: Установка Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Установка зависимостей
+        run: npm install
+
+      - name: Установка Google Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Запуск тестов
+        run: node tests/form.test.js
